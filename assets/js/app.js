@@ -43,3 +43,123 @@ import "phoenix_html"
 // >> liveSocket.disableLatencySim()
 // window.liveSocket = liveSocket
 
+
+
+// // create an array with nodes
+// var nodes = new vis.DataSet([{
+//     id: 1,
+//     label: "Node 1"
+//   },
+//   {
+//     id: 2,
+//     label: "Node 2"
+//   },
+//   {
+//     id: 3,
+//     label: "Node 3"
+//   },
+//   {
+//     id: 4,
+//     label: "Node 4"
+//   },
+//   {
+//     id: 5,
+//     label: "Node 5"
+//   }
+// ]);
+
+// // create an array with edges
+// var edges = new vis.DataSet([{
+//     from: 1,
+//     to: 3,
+//     arrows: {
+//       to: {
+//         enabled: true,
+//         type: "arrow",
+//       },
+//     },
+//   },
+//   {
+//     from: 1,
+//     to: 2,
+//     arrows: "to",
+//   },
+//   {
+//     from: 2,
+//     to: 4
+//   },
+//   {
+//     from: 2,
+//     to: 5
+//   },
+//   {
+//     from: 3,
+//     to: 3
+//   }
+// ]);
+
+// // create a network
+// var container = document.getElementById("dot-viz");
+// var data = {
+//   nodes: nodes,
+//   edges: edges
+// };
+// var options = {
+//   edges: {
+//     smooth: {
+//       type: "cubicBezier",
+//       forceDirection: "horizontal",
+//       roundness: 0.2,
+//     },
+//   },
+//   layout: {
+//     hierarchical: {
+//       direction: "UD",
+//     },
+//   },
+//   physics: true,
+// };
+// var network = new vis.Network(container, data, options);
+
+// network.on("doubleClick", function (params) {
+
+//   console.log(params)
+//   console.log(
+//     "click event, getNodeAt returns: " +
+//     this.getNodeAt(params.pointer.DOM)
+//   );
+// });
+
+
+
+$(document).ready(() => {
+  $('.selectpicker').selectpicker();
+
+
+})
+
+
+document.getElementById('filenames').addEventListener('change', function () {
+  console.log('You selected: ', this.value);
+
+  fetch(`/nodes/${this.value}`)
+    .then(response => response.json())
+    .then(data => data.nodes.map(node => {
+      let option = document.createElement("option");
+      option.text = node;
+      option.value = node;
+      var select = document.getElementById("nodes");
+      select.appendChild(option);
+      $('#nodes').selectpicker('refresh');
+    }))
+});
+
+document.getElementById('nodes').addEventListener('change', function () {
+  let dot_filename = $('#filenames').find(":selected").text()
+
+  fetch(`/edges/${dot_filename}/${encodeURIComponent(this.value)}`)
+    .then(response => response.json())
+    .then(data => {
+      console.log(data)
+    })
+});

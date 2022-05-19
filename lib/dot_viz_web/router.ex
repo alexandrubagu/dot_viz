@@ -17,11 +17,8 @@ defmodule DotVizWeb.Router do
   scope "/", DotVizWeb do
     pipe_through :browser
 
-    get "/", PageController, :index
+    get "/", DefaultController, :index
+    get "/nodes/:filename", DefaultController, :nodes
+    get "/edges/:filename/:module", DefaultController, :edges
   end
-
-  # Other scopes may use custom stacks.
-  # scope "/api", DotVizWeb do
-  #   pipe_through :api
-  # end
 end

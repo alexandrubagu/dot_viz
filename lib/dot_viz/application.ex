@@ -1,25 +1,20 @@
 defmodule DotViz.Application do
-  # See https://hexdocs.pm/elixir/Application.html
-  # for more information on OTP Applications
   @moduledoc false
 
   use Application
 
+  @samples_path "priv/samples/"
+
   @impl true
   def start(_type, _args) do
-    children = [
-      # Start the Telemetry supervisor
-      DotVizWeb.Telemetry,
-      # Start the PubSub system
-      {Phoenix.PubSub, name: DotViz.PubSub},
-      # Start the Endpoint (http/https)
-      DotVizWeb.Endpoint
-      # Start a worker by calling: DotViz.Worker.start_link(arg)
-      # {DotViz.Worker, arg}
-    ]
+    children =
+      [
+        DotVizWeb.Telemetry,
+        {Phoenix.PubSub, name: DotViz.PubSub},
+        DotVizWeb.Endpoint,
+        DotViz.Registry
+      ] ++ application_children()
 
-    # See https://hexdocs.pm/elixir/Supervisor.html
-    # for other strategies and supported options
     opts = [strategy: :one_for_one, name: DotViz.Supervisor]
     Supervisor.start_link(children, opts)
   end
@@ -30,5 +25,20 @@ defmodule DotViz.Application do
   def config_change(changed, _new, removed) do
     DotVizWeb.Endpoint.config_change(changed, removed)
     :ok
+  end
+
+  defp application_children() do
+    @samples_path
+    |> File.ls!()
+    |> Enum.map(&{DotViz.Server, [filename: &1, filepath: @samples_path <> &1]})
+  end
+
+  def filenames(), do: {:ok, Enum.map(DotViz.Registry.all(), & &1.filename)}
+
+  def server_pid(filename) do
+    {:ok,
+     DotViz.Registry.all()
+     |> Enum.find(&(&1.filename == filename))
+     |> Map.get(:pid)}
   end
 end
