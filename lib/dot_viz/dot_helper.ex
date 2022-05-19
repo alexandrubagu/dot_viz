@@ -8,8 +8,8 @@ defmodule DotViz.Helper do
     |> Stream.filter(&String.match?(&1, ~r/^"[[:alnum:]\/_.]+" -> "[[:alnum:]\/_.]+"$/))
     |> Stream.map(fn line ->
       line
+      |> String.replace(~r/ \[label=(.*?)\]/, "")
       |> String.replace("\"", "")
-      |> String.replace("lib/domain/", "")
       |> String.split(" -> ")
     end)
   end

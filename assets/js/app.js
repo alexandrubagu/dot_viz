@@ -98,68 +98,88 @@ import "phoenix_html"
 //   }
 // ]);
 
-// // create a network
-// var container = document.getElementById("dot-viz");
-// var data = {
-//   nodes: nodes,
-//   edges: edges
-// };
-// var options = {
-//   edges: {
-//     smooth: {
-//       type: "cubicBezier",
-//       forceDirection: "horizontal",
-//       roundness: 0.2,
-//     },
-//   },
-//   layout: {
-//     hierarchical: {
-//       direction: "UD",
-//     },
-//   },
-//   physics: true,
-// };
-// var network = new vis.Network(container, data, options);
 
-// network.on("doubleClick", function (params) {
-
-//   console.log(params)
-//   console.log(
-//     "click event, getNodeAt returns: " +
-//     this.getNodeAt(params.pointer.DOM)
-//   );
-// });
 
 
 
 $(document).ready(() => {
   $('.selectpicker').selectpicker();
 
+  document.getElementById('filenames').addEventListener('change', function () {
+    console.log('You selected: ', this.value);
 
+    fetch(`/nodes/${this.value}`)
+      .then(response => response.json())
+      .then(data => data.nodes.map(node => {
+        let option = document.createElement("option");
+        option.text = node;
+        option.value = node;
+        var select = document.getElementById("nodes");
+        select.appendChild(option);
+        $('#nodes').selectpicker('refresh');
+      }))
+  });
+
+  document.getElementById('nodes').addEventListener('change', function () {
+    let dot_filename = $('#filenames').find(":selected").text()
+
+    fetch(`/edges/${dot_filename}/${encodeURIComponent(this.value)}`)
+      .then(response => response.json())
+      .then(response => {
+        let node_names = Array.from(new Set(response.edges.incoming_edges.concat(response.edges.outgoing_edges))).concat([response.current_node])
+
+        let node_names_lookup = {};
+        node_names.map((node, index) => {
+          return node_names_lookup[node] = index
+        });
+
+        const nodes = node_names.map((node, index) => {
+          return {
+            id: index,
+            label: node
+          }
+        });
+
+        const incoming_edges = response.edges.incoming_edges.map((node) => {
+          return {
+            from: node_names_lookup[node],
+            to: node_names_lookup[response.current_node],
+            arrows: "to",
+
+          }
+        });
+
+        const outgoing_edges = response.edges.outgoing_edges.map((node) => {
+          return {
+            from: node_names_lookup[response.current_node],
+            to: node_names_lookup[node],
+            arrows: "to",
+
+          }
+        });
+
+        const edges = incoming_edges.concat(outgoing_edges);
+
+
+        var container = document.getElementById("dot-viz");
+        var data = {
+          nodes: nodes,
+          edges: edges
+        };
+        var options = {
+          physics: {
+            hierarchicalRepulsion: {
+              avoidOverlap: 1,
+            },
+          },
+          layout: {
+            hierarchical: {
+              direction: "UD",
+              sortMethod: "directed",
+            },
+          }
+        };
+        new vis.Network(container, data, options);
+      })
+  });
 })
-
-
-document.getElementById('filenames').addEventListener('change', function () {
-  console.log('You selected: ', this.value);
-
-  fetch(`/nodes/${this.value}`)
-    .then(response => response.json())
-    .then(data => data.nodes.map(node => {
-      let option = document.createElement("option");
-      option.text = node;
-      option.value = node;
-      var select = document.getElementById("nodes");
-      select.appendChild(option);
-      $('#nodes').selectpicker('refresh');
-    }))
-});
-
-document.getElementById('nodes').addEventListener('change', function () {
-  let dot_filename = $('#filenames').find(":selected").text()
-
-  fetch(`/edges/${dot_filename}/${encodeURIComponent(this.value)}`)
-    .then(response => response.json())
-    .then(data => {
-      console.log(data)
-    })
-});
