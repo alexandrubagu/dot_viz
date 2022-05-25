@@ -17,7 +17,7 @@ defmodule DotVizWeb.DefaultController do
   def edges(conn, %{"filename" => filename, "module" => module}) do
     with {:ok, pid} <- DotViz.Application.server_pid(filename),
          {:ok, edges} <- DotViz.Server.edges(pid, module) do
-      json(conn, %{edges: edges, current_node: module} |> IO.inspect())
+      json(conn, %{edges: edges, current_node: module})
     end
   end
 end

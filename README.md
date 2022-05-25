@@ -1,18 +1,9 @@
 # DotViz
+### Preview incoming and outgoing edges for a selected module
 
-To start your Phoenix server:
 
-  * Install dependencies with `mix deps.get`
-  * Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
+### How to
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
-
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
-
-## Learn more
-
-  * Official website: https://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Forum: https://elixirforum.com/c/phoenix-forum
-  * Source: https://github.com/phoenixframework/phoenix
+1. Generate a `DOT` file for your application: `mix xref graph --format dot`
+2. Copy generated `DOT` file into `priv/samples/`
+3. Start the application `iex -S mix phx.server`
