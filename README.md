@@ -1,5 +1,5 @@
 # DotViz
-### Preview incoming and outgoing edges for a selected module
+![preview incoming and outgoing edges for a selected module](https://user-images.githubusercontent.com/215710/170222768-0fc8d75a-6369-4239-835a-2bd60dba1f3b.png)
 
 
 ### How to
